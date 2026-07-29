@@ -1,0 +1,804 @@
+
+---
+title: "HIV Prevalence and Health Expenditure" 
+author: "Sele Maphalala" 
+format: 
+ dashboard: 
+  orientation: columns 
+  theme: cosmo
+   
+---
+
+
+```{python}
+import pandas as pd
+import plotly.express as px
+```
+
+```{python}
+health_expenditure_wide = pd.read_csv(
+    r"C:/Users/USER/Desktop/graph_courses _python/misc_public-main/misc_public-main/current_health_expenditure.csv",
+    engine="python",          # more flexible parser
+    on_bad_lines="skip"       # skips problematic rows
+)
+
+# HIV prevelence data
+hiv_data = pd.read_csv(
+    r"C:/Users/USER\Desktop/graph_courses _python/ddf--datapoints--estimated_hiv_prevalence_ages_15_49--by--country--year.csv",
+    engine="python"
+)
+```
+
+
+```{python}
+#| echo: false
+
+# Convert column names to lowercase and remove spaces
+hiv_data.columns = hiv_data.columns.str.lower().str.strip()
+
+print("HIV columns after cleaning:")
+print(hiv_data.columns.tolist())
+
+
+# Rename country column if necessary
+if "country name" in hiv_data.columns:
+    hiv_data = hiv_data.rename(
+        columns={"country name": "country"}
+    )
+
+elif "country" not in hiv_data.columns:
+    # Use the first column as country if no country column exists
+    hiv_data = hiv_data.rename(
+        columns={hiv_data.columns[0]: "country"}
+    )
+
+
+# Clean country names
+hiv_data["country"] = (
+    hiv_data["country"]
+    .astype(str)
+    .str.strip()
+)
+
+
+# Create a readable country label
+hiv_data["country_label"] = (
+    hiv_data["country"]
+    .str.replace("_", " ", regex=False)
+    .str.title()
+)
+```
+
+
+```{python}
+#| echo: false
+
+# Country-name differences between the HIV dataset # and the health expenditure dataset
+country_map = {
+    "bahamas": "Bahamas,  The",
+    "cape_verde": "Cabo Verde",
+    "congo_rep": "Congo,  Rep.",
+    "cote_d_ivoire": "Cote d'Ivoire",
+    "egypt": "Egypt,  Arab Rep.",
+    "gambia": "Gambia,  The",
+    "guinea_bissau": "Guinea-Bissau",
+    "iran": "Iran,  Islamic Rep.",
+    "lao": "Lao PDR",
+    "sao_tome_and_principe": "Sao Tome and Principe",
+    "south_korea": "Korea,  Rep.",
+    "swaziland": "Eswatini",
+    "trinidad_and_tobago": "Trinidad and Tobago",
+    "turkey": "Turkiye",
+    "venezuela": "Venezuela,  RB",
+    "yemen": "Yemen,  Rep.",
+}
+
+
+# Create a World Bank-compatible country name
+hiv_data["wb_name"] = (
+    hiv_data["country"]
+    .map(country_map)
+    .fillna(hiv_data["country"].str.replace("_", " ", regex=False).str.title())
+)
+```
+
+```{python}
+#| echo: false
+
+# Find columns containing years
+year_columns = [
+    column for column in health_expenditure_wide.columns if str(column).isdigit()
+]
+
+print("Year columns found:")
+print(year_columns[:10])
+
+
+# Convert from wide format to long format
+health_expenditure_long = health_expenditure_wide.melt(
+    id_vars=["Country Name", "Country Code", "Indicator Name", "Indicator Code"],
+    value_vars=year_columns,
+    var_name="year",
+    value_name="health_expenditure",
+)
+
+
+# Convert year to numeric
+health_expenditure_long["year"] = pd.to_numeric(
+    health_expenditure_long["year"], errors="coerce"
+)
+
+
+# Convert health expenditure to numeric
+health_expenditure_long["health_expenditure"] = pd.to_numeric(
+    health_expenditure_long["health_expenditure"], errors="coerce"
+)
+
+
+print(health_expenditure_long.head())
+```
+
+```{python}
+#| echo: false
+
+hiv_data["year"] = pd.to_numeric(
+    hiv_data["year"],
+    errors="coerce"
+)
+
+hiv_data["estimated_hiv_prevalence_ages_15_49"] = pd.to_numeric(
+    hiv_data["estimated_hiv_prevalence_ages_15_49"],
+    errors="coerce"
+)
+```
+
+
+```{python}
+#| echo: false
+
+merged_data = hiv_data.merge(
+    health_expenditure_long,
+    left_on=["wb_name", "year"],
+    right_on=["Country Name", "year"],
+    how="inner"
+)
+
+
+# Remove missing values
+merged_data = merged_data.dropna(
+    subset=[
+        "estimated_hiv_prevalence_ages_15_49",
+        "health_expenditure"
+    ]
+).copy()
+
+
+print("Merged data:")
+print(merged_data.head())
+print("Number of rows:", len(merged_data))
+```
+
+
+```{python}
+#| echo: false
+
+relationship_data = merged_data[
+    (merged_data["year"] >= 2000) &
+    (merged_data["year"] <= 2011)
+].copy()
+```
+
+
+```{python}
+# Latest HIV year
+hiv_latest_year = int(
+    hiv_data["year"].max()
+)
+
+hiv_latest_data = hiv_data[
+    hiv_data["year"] == hiv_latest_year
+].dropna(
+    subset=["estimated_hiv_prevalence_ages_15_49"]
+).copy()
+
+```
+
+
+```{python}
+#| echo: false
+
+# Latest health expenditure year
+
+health_latest_year = int(
+    health_expenditure_long.loc[
+        health_expenditure_long["health_expenditure"].notna(), "year"
+    ].max()
+)
+
+
+health_latest_data = (
+    health_expenditure_long[health_expenditure_long["year"] == health_latest_year]
+    .dropna(subset=["health_expenditure"])
+    .copy()
+)
+```
+
+
+```{python}
+#| echo: false
+
+hiv_country_names = set(
+    hiv_data["wb_name"].dropna().unique()
+)
+
+
+health_latest_countries = health_latest_data[
+    health_latest_data["Country Name"].isin(hiv_country_names)
+].copy()
+```
+
+
+```{python}
+#| echo: false
+
+top_hiv = (
+    hiv_latest_data
+    .sort_values(
+        "estimated_hiv_prevalence_ages_15_49",
+        ascending=False
+    )
+    .head(10)
+)
+
+print(top_hiv[
+    [
+        "country_label",
+        "estimated_hiv_prevalence_ages_15_49"
+    ]
+])
+```
+
+
+```{python}
+#| echo: false
+
+top_health_expenditure = (
+    health_latest_countries
+    .sort_values(
+        "health_expenditure",
+        ascending=False
+    )
+    .head(10)
+)
+
+print(top_health_expenditure[
+    [
+        "Country Name",
+        "health_expenditure"
+    ]
+])
+```
+
+
+```{python}
+#| echo: false
+
+health_country_series = health_expenditure_long[
+    health_expenditure_long["Country Name"].isin(
+        hiv_country_names
+    )
+].copy()
+
+
+health_expenditure_trend = (
+    health_country_series
+    .groupby("year", as_index=False)["health_expenditure"]
+    .mean()
+    .dropna()
+)
+
+
+print(health_expenditure_trend.head())
+```
+
+
+```{python}
+#| echo: false
+
+hiv_trend = (
+    hiv_data
+    .groupby(
+        "year",
+        as_index=False
+    )["estimated_hiv_prevalence_ages_15_49"]
+    .mean()
+    .dropna()
+)
+
+
+print(hiv_trend.head())
+```
+
+
+```{python}
+#| echo: false
+
+relationship_latest_year = int(
+    relationship_data["year"].max()
+)
+
+
+relationship_latest_data = relationship_data[
+    relationship_data["year"] == relationship_latest_year
+].copy()
+
+
+print(
+    "Latest common year:",
+    relationship_latest_year
+)
+```
+
+
+```{python}
+#| echo: false
+
+relationship_latest_data["HIV prevalence (%)"] = relationship_latest_data[
+    "estimated_hiv_prevalence_ages_15_49"
+]
+
+
+relationship_latest_data["Health expenditure (US$ per capita)"] = (
+    relationship_latest_data["health_expenditure"]
+)
+
+
+relationship_table = (
+    relationship_latest_data[
+        ["country_label", "HIV prevalence (%)", "Health expenditure (US$ per capita)"]
+    ]
+    .sort_values("HIV prevalence (%)", ascending=False)
+    .head(10)
+)
+
+
+print(relationship_table)
+```
+
+```{python}
+#| echo: false
+
+print(f"Latest HIV year: {hiv_latest_year}")
+print(f"Countries: {hiv_latest_data['country'].nunique()}")
+print(
+    f"Highest prevalence: "
+    f"{hiv_latest_data['estimated_hiv_prevalence_ages_15_49'].max():.1f}%"
+)
+```
+
+
+# Overview 
+
+## Project Overview 
+
+<div class="intro-box"> 
+### HIV Prevalence, Health Expenditure & ARV Treatment HIV remains an important public health and health-security concern, particularly in countries where health systems face challenges in prevention, testing, treatment, and long-term care. Adequate health financing is important for strengthening health services, including HIV prevention, testing, treatment, and access to antiretroviral (ARV) therapy. This dashboard explores HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. It examines HIV trends, differences in health-system investment, geographical patterns, and the relationship between HIV prevalence and health expenditure. The analysis uses Python, Pandas, NumPy, and Plotly to clean, analyse, and visualise publicly available health data. 
+
+</div> 
+
+## Key Indicators 
+
+::: {.columns} 
+
+::: {.column} 
+
+<div class="kpi-card"> 
+
+<div class="kpi-value"> {{ hiv_latest_year }} </div> 
+
+<div class="kpi-label"> Latest HIV prevalence year </div> 
+
+</div>
+
+
+
+# HIV Prevalence Analysis
+
+```{python}
+#| echo: false
+
+hiv_trend = ( hiv_data .groupby("year", as_index=False) ["estimated_hiv_prevalence_ages_15_49"] .mean() .dropna() )
+```
+
+```{python}
+fig_hiv_trend = px.line(
+    hiv_trend,
+    x="year",
+    y="estimated_hiv_prevalence_ages_15_49",
+    markers=True,
+    title="Average HIV Prevalence Among People Aged 15–49 Over Time",
+    labels={
+        "year": "Year",
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)"
+    }
+)
+
+fig_hiv_trend.update_layout(
+    height=500,
+    xaxis_title="Year",
+    yaxis_title="HIV prevalence (%)"
+)
+
+fig_hiv_trend.show()
+```
+
+```{python}
+top_hiv_plot = top_hiv.sort_values(
+    "estimated_hiv_prevalence_ages_15_49", ascending=True
+)
+
+fig_hiv_top10 = px.bar(
+    top_hiv_plot,
+    x="estimated_hiv_prevalence_ages_15_49",
+    y="country_label",
+    orientation="h",
+    title=f"Top 10 Countries by HIV Prevalence ({hiv_latest_year})",
+    labels={
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)",
+        "country_label": "Country",
+    },
+    text="estimated_hiv_prevalence_ages_15_49",
+)
+
+fig_hiv_top10.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+
+fig_hiv_top10.update_layout(
+    height=550, yaxis_title="Country", xaxis_title="HIV prevalence (%)"
+)
+
+fig_hiv_top10.show()
+```
+
+
+```{python}
+fig_hiv_map = px.choropleth(
+    hiv_latest_data,
+    locations="country",
+    locationmode="country names",
+    color="estimated_hiv_prevalence_ages_15_49",
+    hover_name="country_label",
+    title=f"Global HIV Prevalence Among Ages 15–49 ({hiv_latest_year})",
+    labels={"estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)"},
+    color_continuous_scale="Viridis",
+)
+
+fig_hiv_map.update_layout(height=600)
+
+fig_hiv_map.show()
+```
+
+HIV prevalence remains highly concentrated in Southern and Eastern Africa. The long-term trend shows the historical development of the epidemic followed by a period of stabilization and decline, consistent with expanded prevention and treatment efforts, including ART.
+
+# Health expenditure
+
+```{python}
+fig_health_trend = px.line(
+    health_expenditure_trend,
+    x="year",
+    y="health_expenditure",
+    markers=True,
+    title="Average Current Health Expenditure per Capita Over Time",
+    labels={
+        "year": "Year",
+        "health_expenditure": "Health expenditure (US$ per capita)"
+    }
+)
+
+fig_health_trend.update_layout(
+    height=500,
+    xaxis_title="Year",
+    yaxis_title="Health expenditure (US$ per capita)"
+)
+
+fig_health_trend.show()
+```
+
+Health expenditure per capita generally increased over time, although the pattern varies substantially between countries. Greater financial resources can support health-system capacity, including HIV prevention, testing, treatment, and ARV services.
+
+```{python}
+top_health_plot = top_health_expenditure.sort_values(
+    "health_expenditure",
+    ascending=True
+)
+
+fig_health_top10 = px.bar(
+    top_health_plot,
+    x="health_expenditure",
+    y="Country Name",
+    orientation="h",
+    title=f"Top 10 Countries by Health Expenditure per Capita ({health_latest_year})",
+    labels={
+        "health_expenditure": "Health expenditure (US$ per capita)",
+        "Country Name": "Country"
+    },
+    text="health_expenditure"
+)
+
+fig_health_top10.update_traces(
+    texttemplate="$%{text:,.0f}",
+    textposition="outside"
+)
+
+fig_health_top10.update_layout(
+    height=550,
+    xaxis_title="Health expenditure (US$ per capita)",
+    yaxis_title="Country"
+)
+
+fig_health_top10.show()
+```
+
+
+```{python}
+health_expenditure_table = top_health_expenditure[
+    ["Country Name", "health_expenditure"]
+].copy()
+
+health_expenditure_table["health_expenditure"] = health_expenditure_table[
+    "health_expenditure"
+].round(2)
+
+health_expenditure_table = health_expenditure_table.rename(
+    columns={
+        "Country Name": "Country",
+        "health_expenditure": "Health expenditure (US$ per capita)",
+    }
+)
+
+health_expenditure_table
+```
+
+
+```{python}
+fig_health_map = px.choropleth(
+    health_latest_countries,
+    locations="Country Name",
+    locationmode="country names",
+    color="health_expenditure",
+    hover_name="Country Name",
+    title=f"Current Health Expenditure per Capita ({health_latest_year})",
+    labels={
+        "health_expenditure": "Health expenditure (US$ per capita)"
+    },
+    color_continuous_scale="Blues"
+)
+
+fig_health_map.update_layout(
+    height=600
+)
+
+fig_health_map.show()
+```
+
+Key finding: Health expenditure differs substantially across countries. Higher expenditure is concentrated mainly in high-income countries, while many low- and middle-income countries have substantially lower spending per person.
+
+
+# RELATIONSHIP BETWEEN HIV AND HEALTH EXPENDITURE
+
+```{python}
+# Filter data for years 2000–2011
+relationship_data = merged_data[
+    (merged_data["year"] >= 2000) & (merged_data["year"] <= 2011)
+].copy()
+
+# Get the latest year in the filtered data
+relationship_latest_year = int(relationship_data["year"].max())
+
+# Subset data for the latest year
+relationship_latest_data = relationship_data[
+    relationship_data["year"] == relationship_latest_year
+].copy()
+```
+
+```{python}
+fig_relationship = px.scatter(
+    relationship_data,
+    x="health_expenditure",
+    y="estimated_hiv_prevalence_ages_15_49",
+    color="year",
+    hover_name="country_label",
+    title="HIV Prevalence vs. Health Expenditure per Capita",
+    labels={
+        "health_expenditure": "Health expenditure (US$ per capita)",
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)",
+        "year": "Year",
+    },
+    log_x=True,
+)
+
+fig_relationship.update_layout(height=600)
+
+fig_relationship.show()
+```
+
+
+```{python}
+correlation = relationship_data[
+    [
+        "health_expenditure",
+        "estimated_hiv_prevalence_ages_15_49"
+    ]
+].corr().iloc[0, 1]
+
+print(
+    f"Correlation between health expenditure per capita "
+    f"and HIV prevalence: {correlation:.2f}"
+)
+#| echo: false
+
+print(
+    f"The correlation coefficient is {correlation:.2f}. "
+    "This describes the strength and direction of the linear association "
+    "between the two variables; it does not establish causation."
+)
+```
+
+<div class="interpretation">
+
+The correlation coefficient describes the strength and direction of the linear association between health expenditure per capita and HIV prevalence. It should not be interpreted as evidence that health expenditure causes HIV prevalence to increase or decrease.
+
+</div>
+
+```{python}
+fig_relationship_animation = px.scatter(
+    relationship_data,
+    x="health_expenditure",
+    y="estimated_hiv_prevalence_ages_15_49",
+    animation_frame="year",
+    animation_group="country",
+    hover_name="country_label",
+    size="health_expenditure",
+    title="HIV Prevalence and Health Expenditure Over Time",
+    labels={
+        "health_expenditure": "Health expenditure (US$ per capita)",
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)"
+    },
+    log_x=True
+)
+
+fig_relationship_animation.update_layout(
+    height=600
+)
+
+fig_relationship_animation.show()
+```
+
+
+```{python}
+fig_relationship_map = px.choropleth(
+    relationship_latest_data,
+    locations="country",
+    locationmode="country names",
+    color="estimated_hiv_prevalence_ages_15_49",
+    hover_name="country_label",
+    hover_data={
+        "health_expenditure": ":,.2f"
+    },
+    title=f"HIV Prevalence in the Latest Common Year ({relationship_latest_year})",
+    labels={
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)",
+        "health_expenditure": "Health expenditure (US$ per capita)"
+    },
+    color_continuous_scale="Plasma"
+)
+
+fig_relationship_map.update_layout(
+    height=600
+)
+
+fig_relationship_map.show()
+```
+
+
+```{python}
+relationship_table_display = relationship_table.copy()
+
+relationship_table_display[
+    "HIV prevalence (%)"
+] = relationship_table_display[
+    "HIV prevalence (%)"
+].round(2)
+
+relationship_table_display[
+    "Health expenditure (US$ per capita)"
+] = relationship_table_display[
+    "Health expenditure (US$ per capita)"
+].round(2)
+
+relationship_table_display
+```
+
+
+```{python}
+selected_countries = relationship_latest_data[
+    relationship_latest_data["country_label"].isin(
+        relationship_latest_data
+        .sort_values(
+            "estimated_hiv_prevalence_ages_15_49",
+            ascending=False
+        )
+        .head(10)["country_label"]
+    )
+].copy()
+
+fig_selected = px.scatter(
+    selected_countries,
+    x="health_expenditure",
+    y="estimated_hiv_prevalence_ages_15_49",
+    text="country_label",
+    size="health_expenditure",
+    title=f"Top HIV Prevalence Countries and Health Expenditure ({relationship_latest_year})",
+    labels={
+        "health_expenditure": "Health expenditure (US$ per capita)",
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)"
+    },
+    log_x=True
+)
+
+fig_selected.update_traces(
+    textposition="top center"
+)
+
+fig_selected.update_layout(
+    height=600
+)
+
+fig_selected.show()
+```
+
+<div class="interpretation">
+
+The analysis suggests that the relationship between health expenditure and HIV prevalence is complex rather than simply inverse. Some countries with high HIV prevalence also have relatively high health expenditure because greater spending may reflect substantial investment in managing a large HIV burden.
+
+Countries with lower spending can also have lower prevalence for reasons unrelated to spending, including differences in epidemic history, population structure, prevention, testing, treatment coverage, and other social and health-system factors.
+
+</div> 
+
+
+# Conclusion 
+
+<div class="conclusion-box"> 
+
+## Key Findings 
+
+This analysis examined HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. 
+
+### 1. HIV burden varies substantially 
+
+HIV prevalence differs considerably between countries, with the highest levels concentrated in Southern and Eastern Africa. This reflects the historical development and geographical concentration of the HIV epidemic. 
+
+### 2. Health expenditure differs widely 
+
+Current health expenditure per capita varies substantially across countries. Higher spending is generally concentrated in wealthier countries, while many low- and middle-income countries operate with considerably fewer resources per person. 
+
+### 3. Health spending and HIV prevalence have a complex relationship 
+
+The analysis does not support a simple conclusion that higher health expenditure automatically results in lower HIV prevalence. Countries with high HIV prevalence may also have high health expenditure because substantial resources are required to provide HIV prevention, testing, treatment, and ARV therapy. 
+
+### 4. Sustained investment remains important 
+
+Continued investment in health systems, HIV prevention, testing, treatment, ARV therapy, and health-system capacity remains important for reducing HIV-related morbidity and improving long-term health outcomes. 
+
+### Limitations 
+
+The analysis is based on observational country-level data. Therefore, the observed relationships should be interpreted as associations rather than causal effects. Differences in epidemic history, socioeconomic conditions, healthcare access, prevention programmes, treatment coverage, and data quality may influence the results.
+
+ </div> 
+ 
+ ## Final Message 
+ 
+ <div class="interpretation"> 
+ 
+ **Overall, the dashboard demonstrates how publicly available health data can be combined with Python to identify patterns in HIV prevalence, health expenditure, and health-system investment. The findings highlight the importance of sustained HIV prevention, treatment, ARV therapy, and broader health-system strengthening.** 
+ 
+ </div>
