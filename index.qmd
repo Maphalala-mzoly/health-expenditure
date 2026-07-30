@@ -7,7 +7,7 @@ format:
   orientation: columns 
   scrolling: true 
   toc: false 
-  css: styles.css 
+  css: styles.css
 
 execute:
   echo: false
@@ -394,12 +394,11 @@ print(
 ### HIV Prevalence, Health Expenditure & ARV Treatment HIV remains an important public health and health-security concern, particularly in countries where health systems face challenges in prevention, testing, treatment, and long-term care. Adequate health financing is important for strengthening health services, including HIV prevention, testing, treatment, and access to antiretroviral (ARV) therapy. This dashboard explores HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. It examines HIV trends, differences in health-system investment, geographical patterns, and the relationship between HIV prevalence and health expenditure. The analysis uses Python, Pandas, NumPy, and Plotly to clean, analyse, and visualise publicly available health data. 
 :::
 
-## Key Indicators
 
 ```{python}
 from IPython.display import HTML
 
-kpi_html = f"""
+kpi_html = f'''
 <div class="kpi-grid">
   <div class="card kpi-card">
     <h3>Latest HIV Year</h3>
@@ -418,7 +417,7 @@ kpi_html = f"""
     <h2>{hiv_latest_data["estimated_hiv_prevalence_ages_15_49"].max():.1f}%</h2>
   </div>
 </div>
-"""
+'''
 
 display(HTML(kpi_html))
 ```
@@ -682,16 +681,6 @@ fig_relationship.update_layout(height=600)
 
 fig_relationship.show()
 ```
-
-## Correlation
-
-::: {.card .kpi-card}
-### Correlation coefficient
-
-## `{{< python f"{correlation:.2f}" >}}`
-
-This measures the direction and strength of the linear association in the selected data. It does **not** establish causation.
-:::
 
 ## Change Over Time
 
