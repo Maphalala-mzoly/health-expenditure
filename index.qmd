@@ -45,9 +45,6 @@ hiv_data = pd.read_csv(
 # Convert column names to lowercase and remove spaces
 hiv_data.columns = hiv_data.columns.str.lower().str.strip()
 
-print("HIV columns after cleaning:")
-print(hiv_data.columns.tolist())
-
 
 # Rename country column if necessary
 if "country name" in hiv_data.columns:
@@ -119,10 +116,6 @@ year_columns = [
     column for column in health_expenditure_wide.columns if str(column).isdigit()
 ]
 
-print("Year columns found:")
-print(year_columns[:10])
-
-
 # Convert from wide format to long format
 health_expenditure_long = health_expenditure_wide.melt(
     id_vars=["Country Name", "Country Code", "Indicator Name", "Indicator Code"],
@@ -143,8 +136,6 @@ health_expenditure_long["health_expenditure"] = pd.to_numeric(
     health_expenditure_long["health_expenditure"], errors="coerce"
 )
 
-
-print(health_expenditure_long.head())
 ```
 
 ```{python}
@@ -181,10 +172,6 @@ merged_data = merged_data.dropna(
     ]
 ).copy()
 
-
-print("Merged data:")
-print(merged_data.head())
-print("Number of rows:", len(merged_data))
 ```
 
 
@@ -250,21 +237,9 @@ health_latest_countries = health_latest_data[
 ```{python}
 #| echo: false
 
-top_hiv = (
-    hiv_latest_data
-    .sort_values(
-        "estimated_hiv_prevalence_ages_15_49",
-        ascending=False
-    )
-    .head(10)
-)
-
-print(top_hiv[
-    [
-        "country_label",
-        "estimated_hiv_prevalence_ages_15_49"
-    ]
-])
+top_hiv = hiv_latest_data.sort_values(
+    "estimated_hiv_prevalence_ages_15_49", ascending=False
+).head(10)
 ```
 
 
@@ -280,12 +255,6 @@ top_health_expenditure = (
     .head(10)
 )
 
-print(top_health_expenditure[
-    [
-        "Country Name",
-        "health_expenditure"
-    ]
-])
 ```
 
 
@@ -306,8 +275,6 @@ health_expenditure_trend = (
     .dropna()
 )
 
-
-print(health_expenditure_trend.head())
 ```
 
 
@@ -324,8 +291,6 @@ hiv_trend = (
     .dropna()
 )
 
-
-print(hiv_trend.head())
 ```
 
 
@@ -341,11 +306,6 @@ relationship_latest_data = relationship_data[
     relationship_data["year"] == relationship_latest_year
 ].copy()
 
-
-print(
-    "Latest common year:",
-    relationship_latest_year
-)
 ```
 
 
@@ -370,21 +330,7 @@ relationship_table = (
     .head(10)
 )
 
-
-print(relationship_table)
 ```
-
-```{python}
-#| echo: false
-
-print(f"Latest HIV year: {hiv_latest_year}")
-print(f"Countries: {hiv_latest_data['country'].nunique()}")
-print(
-    f"Highest prevalence: "
-    f"{hiv_latest_data['estimated_hiv_prevalence_ages_15_49'].max():.1f}%"
-)
-```
-
 
 # Overview 
 
