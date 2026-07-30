@@ -21,7 +21,7 @@
         "  error: false\n",
         "---\n"
       ],
-      "id": "6d9be48b"
+      "id": "0d492fde"
     },
     {
       "cell_type": "code",
@@ -31,7 +31,7 @@
         "import plotly.express as px\n",
         "import numpy as np"
       ],
-      "id": "2c091442",
+      "id": "7cb63ae8",
       "execution_count": null,
       "outputs": []
     },
@@ -53,7 +53,7 @@
         "    engine=\"python\",\n",
         ")"
       ],
-      "id": "ec058cfc",
+      "id": "51cecbe8",
       "execution_count": null,
       "outputs": []
     },
@@ -98,7 +98,7 @@
         "    .str.title()\n",
         ")"
       ],
-      "id": "8217c042",
+      "id": "78f02400",
       "execution_count": null,
       "outputs": []
     },
@@ -136,7 +136,7 @@
         "    .fillna(hiv_data[\"country\"].str.replace(\"_\", \" \", regex=False).str.title())\n",
         ")"
       ],
-      "id": "48d88859",
+      "id": "a8426fd7",
       "execution_count": null,
       "outputs": []
     },
@@ -178,7 +178,7 @@
         "\n",
         "print(health_expenditure_long.head())"
       ],
-      "id": "75ceec2f",
+      "id": "b830f7ac",
       "execution_count": null,
       "outputs": []
     },
@@ -198,7 +198,7 @@
         "    errors=\"coerce\"\n",
         ")"
       ],
-      "id": "10b1b18b",
+      "id": "a20c65c0",
       "execution_count": null,
       "outputs": []
     },
@@ -229,7 +229,7 @@
         "print(merged_data.head())\n",
         "print(\"Number of rows:\", len(merged_data))"
       ],
-      "id": "8d3df96e",
+      "id": "b32a3ce1",
       "execution_count": null,
       "outputs": []
     },
@@ -244,7 +244,7 @@
         "    (merged_data[\"year\"] <= 2011)\n",
         "].copy()"
       ],
-      "id": "39353dcb",
+      "id": "7b875ee8",
       "execution_count": null,
       "outputs": []
     },
@@ -263,7 +263,7 @@
         "    subset=[\"estimated_hiv_prevalence_ages_15_49\"]\n",
         ").copy()"
       ],
-      "id": "81f21d4d",
+      "id": "d3c43fe2",
       "execution_count": null,
       "outputs": []
     },
@@ -288,7 +288,7 @@
         "    .copy()\n",
         ")"
       ],
-      "id": "5eb11ae7",
+      "id": "7b58e4b2",
       "execution_count": null,
       "outputs": []
     },
@@ -307,7 +307,7 @@
         "    health_latest_data[\"Country Name\"].isin(hiv_country_names)\n",
         "].copy()"
       ],
-      "id": "b468732f",
+      "id": "4bf1a30d",
       "execution_count": null,
       "outputs": []
     },
@@ -333,7 +333,7 @@
         "    ]\n",
         "])"
       ],
-      "id": "e2314b97",
+      "id": "71d09e3f",
       "execution_count": null,
       "outputs": []
     },
@@ -359,7 +359,7 @@
         "    ]\n",
         "])"
       ],
-      "id": "8b2ed9fd",
+      "id": "ea75b698",
       "execution_count": null,
       "outputs": []
     },
@@ -386,7 +386,7 @@
         "\n",
         "print(health_expenditure_trend.head())"
       ],
-      "id": "36353c6b",
+      "id": "b8d4cac8",
       "execution_count": null,
       "outputs": []
     },
@@ -409,7 +409,7 @@
         "\n",
         "print(hiv_trend.head())"
       ],
-      "id": "0754ee40",
+      "id": "068ff305",
       "execution_count": null,
       "outputs": []
     },
@@ -434,7 +434,7 @@
         "    relationship_latest_year\n",
         ")"
       ],
-      "id": "90ea34f2",
+      "id": "8fc7ecad",
       "execution_count": null,
       "outputs": []
     },
@@ -465,7 +465,7 @@
         "\n",
         "print(relationship_table)"
       ],
-      "id": "cf78cf26",
+      "id": "dbee6e00",
       "execution_count": null,
       "outputs": []
     },
@@ -482,7 +482,7 @@
         "    f\"{hiv_latest_data['estimated_hiv_prevalence_ages_15_49'].max():.1f}%\"\n",
         ")"
       ],
-      "id": "4e524497",
+      "id": "a473eea4",
       "execution_count": null,
       "outputs": []
     },
@@ -498,7 +498,7 @@
         "### HIV Prevalence, Health Expenditure & ARV Treatment HIV remains an important public health and health-security concern, particularly in countries where health systems face challenges in prevention, testing, treatment, and long-term care. Adequate health financing is important for strengthening health services, including HIV prevention, testing, treatment, and access to antiretroviral (ARV) therapy. This dashboard explores HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. It examines HIV trends, differences in health-system investment, geographical patterns, and the relationship between HIV prevalence and health expenditure. The analysis uses Python, Pandas, NumPy, and Plotly to clean, analyse, and visualise publicly available health data. \n",
         ":::\n"
       ],
-      "id": "5d206ad2"
+      "id": "de5e9bb1"
     },
     {
       "cell_type": "code",
@@ -529,7 +529,7 @@
         "\n",
         "display(HTML(kpi_html))"
       ],
-      "id": "9fcb16cf",
+      "id": "add52b06",
       "execution_count": null,
       "outputs": []
     },
@@ -548,7 +548,7 @@
         "\n",
         "## Trend Over Time"
       ],
-      "id": "051919d5"
+      "id": "45df3610"
     },
     {
       "cell_type": "code",
@@ -558,7 +558,7 @@
         "\n",
         "hiv_trend = ( hiv_data .groupby(\"year\", as_index=False) [\"estimated_hiv_prevalence_ages_15_49\"] .mean() .dropna() )"
       ],
-      "id": "9800befa",
+      "id": "e679d740",
       "execution_count": null,
       "outputs": []
     },
@@ -588,7 +588,7 @@
         "\n",
         "fig_hiv_trend.show()"
       ],
-      "id": "a86477b0",
+      "id": "e0fc38e1",
       "execution_count": null,
       "outputs": []
     },
@@ -598,7 +598,7 @@
       "source": [
         "## Highest-Prevalence Countries"
       ],
-      "id": "0266573e"
+      "id": "872cc25a"
     },
     {
       "cell_type": "code",
@@ -631,7 +631,7 @@
         "\n",
         "fig_hiv_top10.show()"
       ],
-      "id": "f9813139",
+      "id": "8e43ad4b",
       "execution_count": null,
       "outputs": []
     },
@@ -645,7 +645,7 @@
         "\n",
         "## Global Distribution"
       ],
-      "id": "5e8a0f8a"
+      "id": "e1c229b9"
     },
     {
       "cell_type": "code",
@@ -668,7 +668,7 @@
         "\n",
         "fig_hiv_map.show()"
       ],
-      "id": "222ed7f2",
+      "id": "6ebf5c18",
       "execution_count": null,
       "outputs": []
     },
@@ -680,7 +680,7 @@
         "\n",
         "## Trend Over Time"
       ],
-      "id": "378396f8"
+      "id": "20bb91d4"
     },
     {
       "cell_type": "code",
@@ -708,7 +708,7 @@
         "\n",
         "fig_health_trend.show()"
       ],
-      "id": "2277016c",
+      "id": "a9cb92ba",
       "execution_count": null,
       "outputs": []
     },
@@ -722,7 +722,7 @@
         "\n",
         "## Highest Health Expenditure"
       ],
-      "id": "d2feaf37"
+      "id": "42e0eeec"
     },
     {
       "cell_type": "code",
@@ -761,7 +761,7 @@
         "\n",
         "fig_health_top10.show()"
       ],
-      "id": "edacc603",
+      "id": "15e5878e",
       "execution_count": null,
       "outputs": []
     },
@@ -771,7 +771,7 @@
       "source": [
         "## Country Comparison"
       ],
-      "id": "a20f6e87"
+      "id": "3ffeaddb"
     },
     {
       "cell_type": "code",
@@ -796,7 +796,7 @@
         "\n",
         "health_expenditure_table"
       ],
-      "id": "51cb05ad",
+      "id": "b37b12ec",
       "execution_count": null,
       "outputs": []
     },
@@ -806,7 +806,7 @@
       "source": [
         "## Global Distribution"
       ],
-      "id": "38df9684"
+      "id": "0075fcaa"
     },
     {
       "cell_type": "code",
@@ -833,7 +833,7 @@
         "\n",
         "fig_health_map.show()"
       ],
-      "id": "c41692e2",
+      "id": "1ab92b50",
       "execution_count": null,
       "outputs": []
     },
@@ -845,7 +845,7 @@
         "\n",
         "## Relationship"
       ],
-      "id": "562fd8a6"
+      "id": "ab47174c"
     },
     {
       "cell_type": "code",
@@ -866,7 +866,7 @@
         "    relationship_data[\"year\"] == relationship_latest_year\n",
         "].copy()"
       ],
-      "id": "32490663",
+      "id": "83690568",
       "execution_count": null,
       "outputs": []
     },
@@ -895,7 +895,7 @@
         "\n",
         "fig_relationship.show()"
       ],
-      "id": "c828b7f5",
+      "id": "d61a21e0",
       "execution_count": null,
       "outputs": []
     },
@@ -905,7 +905,7 @@
       "source": [
         "## Change Over Time"
       ],
-      "id": "e5f62cd0"
+      "id": "2c4fdadf"
     },
     {
       "cell_type": "code",
@@ -935,7 +935,7 @@
         "\n",
         "fig_relationship_animation.show()"
       ],
-      "id": "7a7c0410",
+      "id": "a2b7693a",
       "execution_count": null,
       "outputs": []
     },
@@ -947,7 +947,7 @@
         "**Main finding:** The relationship between health expenditure and HIV prevalence is complex rather than simply inverse. Some countries with high HIV prevalence also have relatively high health expenditure because greater spending may reflect investment in managing a substantial HIV burden.\n",
         ":::"
       ],
-      "id": "d9123024"
+      "id": "43f18b60"
     },
     {
       "cell_type": "code",
@@ -978,7 +978,7 @@
         "\n",
         "fig_relationship_map.show()"
       ],
-      "id": "2848a7bb",
+      "id": "54294982",
       "execution_count": null,
       "outputs": []
     },
@@ -1004,7 +1004,7 @@
         "\n",
         "relationship_table_display"
       ],
-      "id": "0f734837",
+      "id": "3c8f0396",
       "execution_count": null,
       "outputs": []
     },
@@ -1042,7 +1042,7 @@
         "\n",
         "fig_selected.show()"
       ],
-      "id": "35069f61",
+      "id": "24e06383",
       "execution_count": null,
       "outputs": []
     },
@@ -1080,7 +1080,7 @@
         "**Overall, the dashboard demonstrates how publicly available health data can be combined with Python to identify patterns in HIV prevalence, health expenditure, and health-system investment. The findings highlight the importance of sustained HIV prevention, treatment, ARV therapy, and broader health-system strengthening.**\n",
         ":::"
       ],
-      "id": "a70fea66"
+      "id": "ad19543f"
     }
   ],
   "metadata": {
