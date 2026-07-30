@@ -1,31 +1,40 @@
-
 ---
-title: "HIV Prevalence and Health Expenditure" 
+title: "HIV Prevalence, Health Expenditure & ARV Treatment" 
 author: "Sele Maphalala" 
 format: 
  dashboard: 
+  theme: cosmo 
   orientation: columns 
-  theme: cosmo
-   
+  scrolling: true 
+  toc: false 
+  css: styles.css 
+
+execute:
+  echo: false
+  warning: false
+  error: false
 ---
 
 
 ```{python}
 import pandas as pd
 import plotly.express as px
+import numpy as np
 ```
 
 ```{python}
+#| echo: false
+
 health_expenditure_wide = pd.read_csv(
     r"C:/Users/USER/Desktop/graph_courses _python/misc_public-main/misc_public-main/current_health_expenditure.csv",
-    engine="python",          # more flexible parser
-    on_bad_lines="skip"       # skips problematic rows
+    engine="python",  # more flexible parser
+    on_bad_lines="skip",  # skips problematic rows
 )
 
 # HIV prevelence data
 hiv_data = pd.read_csv(
     r"C:/Users/USER\Desktop/graph_courses _python/ddf--datapoints--estimated_hiv_prevalence_ages_15_49--by--country--year.csv",
-    engine="python"
+    engine="python",
 )
 ```
 
@@ -381,28 +390,54 @@ print(
 
 ## Project Overview 
 
-<div class="intro-box"> 
+::: {.card .intro-card}
 ### HIV Prevalence, Health Expenditure & ARV Treatment HIV remains an important public health and health-security concern, particularly in countries where health systems face challenges in prevention, testing, treatment, and long-term care. Adequate health financing is important for strengthening health services, including HIV prevention, testing, treatment, and access to antiretroviral (ARV) therapy. This dashboard explores HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. It examines HIV trends, differences in health-system investment, geographical patterns, and the relationship between HIV prevalence and health expenditure. The analysis uses Python, Pandas, NumPy, and Plotly to clean, analyse, and visualise publicly available health data. 
+:::
 
-</div> 
+## Key Indicators
 
-## Key Indicators 
+::: {.columns}
 
-::: {.columns} 
+::: {.column}
+::: {.card .kpi-card}
+### Latest HIV Year
+## `{{< python hiv_latest_year >}}`
+:::
+:::
 
-::: {.column} 
+::: {.column}
+::: {.card .kpi-card}
+### Health Spending Year
+## `{{< python health_latest_year >}}`
+:::
+:::
 
-<div class="kpi-card"> 
+::: {.column}
+::: {.card .kpi-card}
+### Countries
+## `{{< python hiv_latest_data["country"].nunique() >}}`
+:::
+:::
 
-<div class="kpi-value"> {{ hiv_latest_year }} </div> 
+::: {.column}
+::: {.card .kpi-card}
+### Highest HIV Prevalence
+## `{{< python f"{hiv_latest_data['estimated_hiv_prevalence_ages_15_49'].max():.1f}%" >}}`
+:::
+:::
 
-<div class="kpi-label"> Latest HIV prevalence year </div> 
+:::
 
-</div>
+## Why This Project Matters
 
+::: {.card .finding-card}
+The project brings together HIV prevalence and health expenditure data to identify patterns relevant to HIV prevention, testing, treatment, ARV therapy, and broader health-system strengthening. The analysis is descriptive and does not establish causal effects.
+:::
 
 
 # HIV Prevalence Analysis
+
+## Trend Over Time
 
 ```{python}
 #| echo: false
@@ -411,6 +446,8 @@ hiv_trend = ( hiv_data .groupby("year", as_index=False) ["estimated_hiv_prevalen
 ```
 
 ```{python}
+#| echo: false
+
 fig_hiv_trend = px.line(
     hiv_trend,
     x="year",
@@ -432,7 +469,11 @@ fig_hiv_trend.update_layout(
 fig_hiv_trend.show()
 ```
 
+## Highest-Prevalence Countries
+
 ```{python}
+#| echo: false
+
 top_hiv_plot = top_hiv.sort_values(
     "estimated_hiv_prevalence_ages_15_49", ascending=True
 )
@@ -459,8 +500,15 @@ fig_hiv_top10.update_layout(
 fig_hiv_top10.show()
 ```
 
+::: {.card .finding-card}
+**Interpretation:** HIV prevalence remains highly concentrated in Southern and Eastern Africa. The long-term pattern shows the historical development of the epidemic followed by periods of stabilization and decline, consistent with the broader context of expanded prevention and treatment efforts, including ART.
+:::
+
+## Global Distribution
 
 ```{python}
+#| echo: false
+
 fig_hiv_map = px.choropleth(
     hiv_latest_data,
     locations="country",
@@ -477,11 +525,13 @@ fig_hiv_map.update_layout(height=600)
 fig_hiv_map.show()
 ```
 
-HIV prevalence remains highly concentrated in Southern and Eastern Africa. The long-term trend shows the historical development of the epidemic followed by a period of stabilization and decline, consistent with expanded prevention and treatment efforts, including ART.
-
 # Health expenditure
 
+## Trend Over Time
+
 ```{python}
+#| echo: false
+
 fig_health_trend = px.line(
     health_expenditure_trend,
     x="year",
@@ -503,9 +553,15 @@ fig_health_trend.update_layout(
 fig_health_trend.show()
 ```
 
-Health expenditure per capita generally increased over time, although the pattern varies substantially between countries. Greater financial resources can support health-system capacity, including HIV prevention, testing, treatment, and ARV services.
+::: {.card .finding-card}
+**Interpretation:** Average health expenditure per capita among countries included in the analysis varies over time. Greater financial resources can support health-system capacity, including HIV prevention, testing, treatment, and ARV services.
+:::
+
+## Highest Health Expenditure
 
 ```{python}
+#| echo: false
+
 top_health_plot = top_health_expenditure.sort_values(
     "health_expenditure",
     ascending=True
@@ -539,7 +595,11 @@ fig_health_top10.show()
 ```
 
 
+## Country Comparison
+
 ```{python}
+#| echo: false
+
 health_expenditure_table = top_health_expenditure[
     ["Country Name", "health_expenditure"]
 ].copy()
@@ -558,8 +618,11 @@ health_expenditure_table = health_expenditure_table.rename(
 health_expenditure_table
 ```
 
+## Global Distribution
 
 ```{python}
+#| echo: false
+
 fig_health_map = px.choropleth(
     health_latest_countries,
     locations="Country Name",
@@ -580,12 +643,14 @@ fig_health_map.update_layout(
 fig_health_map.show()
 ```
 
-Key finding: Health expenditure differs substantially across countries. Higher expenditure is concentrated mainly in high-income countries, while many low- and middle-income countries have substantially lower spending per person.
-
 
 # RELATIONSHIP BETWEEN HIV AND HEALTH EXPENDITURE
 
+## Relationship
+
 ```{python}
+#| echo: false
+
 # Filter data for years 2000–2011
 relationship_data = merged_data[
     (merged_data["year"] >= 2000) & (merged_data["year"] <= 2011)
@@ -601,6 +666,8 @@ relationship_latest_data = relationship_data[
 ```
 
 ```{python}
+#| echo: false
+
 fig_relationship = px.scatter(
     relationship_data,
     x="health_expenditure",
@@ -621,35 +688,21 @@ fig_relationship.update_layout(height=600)
 fig_relationship.show()
 ```
 
+## Correlation
+
+::: {.card .kpi-card}
+### Correlation coefficient
+
+## `{{< python f"{correlation:.2f}" >}}`
+
+This measures the direction and strength of the linear association in the selected data. It does **not** establish causation.
+:::
+
+## Change Over Time
 
 ```{python}
-correlation = relationship_data[
-    [
-        "health_expenditure",
-        "estimated_hiv_prevalence_ages_15_49"
-    ]
-].corr().iloc[0, 1]
-
-print(
-    f"Correlation between health expenditure per capita "
-    f"and HIV prevalence: {correlation:.2f}"
-)
 #| echo: false
 
-print(
-    f"The correlation coefficient is {correlation:.2f}. "
-    "This describes the strength and direction of the linear association "
-    "between the two variables; it does not establish causation."
-)
-```
-
-<div class="interpretation">
-
-The correlation coefficient describes the strength and direction of the linear association between health expenditure per capita and HIV prevalence. It should not be interpreted as evidence that health expenditure causes HIV prevalence to increase or decrease.
-
-</div>
-
-```{python}
 fig_relationship_animation = px.scatter(
     relationship_data,
     x="health_expenditure",
@@ -673,8 +726,13 @@ fig_relationship_animation.update_layout(
 fig_relationship_animation.show()
 ```
 
+::: {.card .finding-card}
+**Main finding:** The relationship between health expenditure and HIV prevalence is complex rather than simply inverse. Some countries with high HIV prevalence also have relatively high health expenditure because greater spending may reflect investment in managing a substantial HIV burden.
+:::
 
 ```{python}
+#| echo: false
+
 fig_relationship_map = px.choropleth(
     relationship_latest_data,
     locations="country",
@@ -701,6 +759,8 @@ fig_relationship_map.show()
 
 
 ```{python}
+#| echo: false
+
 relationship_table_display = relationship_table.copy()
 
 relationship_table_display[
@@ -720,14 +780,13 @@ relationship_table_display
 
 
 ```{python}
+#| echo: false
+
 selected_countries = relationship_latest_data[
     relationship_latest_data["country_label"].isin(
-        relationship_latest_data
-        .sort_values(
-            "estimated_hiv_prevalence_ages_15_49",
-            ascending=False
-        )
-        .head(10)["country_label"]
+        relationship_latest_data.sort_values(
+            "estimated_hiv_prevalence_ages_15_49", ascending=False
+        ).head(10)["country_label"]
     )
 ].copy()
 
@@ -740,65 +799,45 @@ fig_selected = px.scatter(
     title=f"Top HIV Prevalence Countries and Health Expenditure ({relationship_latest_year})",
     labels={
         "health_expenditure": "Health expenditure (US$ per capita)",
-        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)"
+        "estimated_hiv_prevalence_ages_15_49": "HIV prevalence (%)",
     },
-    log_x=True
+    log_x=True,
 )
 
-fig_selected.update_traces(
-    textposition="top center"
-)
+fig_selected.update_traces(textposition="top center")
 
-fig_selected.update_layout(
-    height=600
-)
+fig_selected.update_layout(height=600)
 
 fig_selected.show()
 ```
 
-<div class="interpretation">
-
-The analysis suggests that the relationship between health expenditure and HIV prevalence is complex rather than simply inverse. Some countries with high HIV prevalence also have relatively high health expenditure because greater spending may reflect substantial investment in managing a large HIV burden.
-
-Countries with lower spending can also have lower prevalence for reasons unrelated to spending, including differences in epidemic history, population structure, prevention, testing, treatment coverage, and other social and health-system factors.
-
-</div> 
-
 
 # Conclusion 
 
-<div class="conclusion-box"> 
+::: {.card .conclusion-card}
 
-## Key Findings 
+## Key Findings
 
-This analysis examined HIV prevalence among people aged 15–49 and current health expenditure per capita across countries and over time. 
+**1. HIV burden varies substantially.**  
+HIV prevalence differs considerably between countries, with the highest levels concentrated in Southern and Eastern Africa.
 
-### 1. HIV burden varies substantially 
+**2. Health expenditure differs widely.**  
+Current health expenditure per capita varies substantially across countries, reflecting differences in economic resources and health-system investment.
 
-HIV prevalence differs considerably between countries, with the highest levels concentrated in Southern and Eastern Africa. This reflects the historical development and geographical concentration of the HIV epidemic. 
+**3. The relationship is complex.**  
+The analysis does not support a simple conclusion that higher health expenditure automatically results in lower HIV prevalence. Countries with high HIV prevalence may also have high expenditure because substantial resources are needed for prevention, testing, treatment, and ARV therapy.
 
-### 2. Health expenditure differs widely 
+**4. Sustained investment remains important.**  
+Continued investment in health systems, HIV prevention, testing, treatment, ARV therapy, and health-system capacity remains important for improving long-term health outcomes.
 
-Current health expenditure per capita varies substantially across countries. Higher spending is generally concentrated in wealthier countries, while many low- and middle-income countries operate with considerably fewer resources per person. 
+## Limitations
 
-### 3. Health spending and HIV prevalence have a complex relationship 
+This is an observational, country-level analysis. The observed relationships should therefore be interpreted as associations rather than causal effects. Differences in epidemic history, socioeconomic conditions, healthcare access, prevention programmes, treatment coverage, and data quality may influence the results.
 
-The analysis does not support a simple conclusion that higher health expenditure automatically results in lower HIV prevalence. Countries with high HIV prevalence may also have high health expenditure because substantial resources are required to provide HIV prevention, testing, treatment, and ARV therapy. 
+:::
 
-### 4. Sustained investment remains important 
+::: {.card .final-message}
+### Final Message
 
-Continued investment in health systems, HIV prevention, testing, treatment, ARV therapy, and health-system capacity remains important for reducing HIV-related morbidity and improving long-term health outcomes. 
-
-### Limitations 
-
-The analysis is based on observational country-level data. Therefore, the observed relationships should be interpreted as associations rather than causal effects. Differences in epidemic history, socioeconomic conditions, healthcare access, prevention programmes, treatment coverage, and data quality may influence the results.
-
- </div> 
- 
- ## Final Message 
- 
- <div class="interpretation"> 
- 
- **Overall, the dashboard demonstrates how publicly available health data can be combined with Python to identify patterns in HIV prevalence, health expenditure, and health-system investment. The findings highlight the importance of sustained HIV prevention, treatment, ARV therapy, and broader health-system strengthening.** 
- 
- </div>
+**Overall, the dashboard demonstrates how publicly available health data can be combined with Python to identify patterns in HIV prevalence, health expenditure, and health-system investment. The findings highlight the importance of sustained HIV prevention, treatment, ARV therapy, and broader health-system strengthening.**
+:::
