@@ -26,14 +26,14 @@ import numpy as np
 #| echo: false
 
 health_expenditure_wide = pd.read_csv(
-    r"C:/Users/USER/Desktop/graph_courses _python/misc_public-main/misc_public-main/current_health_expenditure.csv",
+    r"C:/Users/USER/Documents/GitHub/co2_emissions_demo/data/hiv-prevalance/health-expenditure/current_health_expenditure.csv",
     engine="python",  # more flexible parser
     on_bad_lines="skip",  # skips problematic rows
 )
 
 # HIV prevelence data
 hiv_data = pd.read_csv(
-    r"C:/Users/USER\Desktop/graph_courses _python/ddf--datapoints--estimated_hiv_prevalence_ages_15_49--by--country--year.csv",
+     r"C:\Users\USER\Documents\GitHub\co2_emissions_demo\data\hiv-prevalance\health-expenditure\ddf--datapoints--estimated_hiv_prevalence_ages_15_49--by--country--year.csv",
     engine="python",
 )
 ```
@@ -396,37 +396,32 @@ print(
 
 ## Key Indicators
 
-::: {.columns}
+```{python}
+from IPython.display import HTML
 
-::: {.column}
-::: {.card .kpi-card}
-### Latest HIV Year
-## `{{< python hiv_latest_year >}}`
-:::
-:::
+kpi_html = f"""
+<div class="kpi-grid">
+  <div class="card kpi-card">
+    <h3>Latest HIV Year</h3>
+    <h2>{hiv_latest_year}</h2>
+  </div>
+  <div class="card kpi-card">
+    <h3>Health Spending Year</h3>
+    <h2>{health_latest_year}</h2>
+  </div>
+  <div class="card kpi-card">
+    <h3>Countries</h3>
+    <h2>{hiv_latest_data["country"].nunique()}</h2>
+  </div>
+  <div class="card kpi-card">
+    <h3>Highest HIV Prevalence</h3>
+    <h2>{hiv_latest_data["estimated_hiv_prevalence_ages_15_49"].max():.1f}%</h2>
+  </div>
+</div>
+"""
 
-::: {.column}
-::: {.card .kpi-card}
-### Health Spending Year
-## `{{< python health_latest_year >}}`
-:::
-:::
-
-::: {.column}
-::: {.card .kpi-card}
-### Countries
-## `{{< python hiv_latest_data["country"].nunique() >}}`
-:::
-:::
-
-::: {.column}
-::: {.card .kpi-card}
-### Highest HIV Prevalence
-## `{{< python f"{hiv_latest_data['estimated_hiv_prevalence_ages_15_49'].max():.1f}%" >}}`
-:::
-:::
-
-:::
+display(HTML(kpi_html))
+```
 
 ## Why This Project Matters
 
