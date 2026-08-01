@@ -630,7 +630,6 @@ relationship_latest_data = relationship_data[
 ].copy()
 ```
 
-::: {.row height="650px"}
 
 ```{python}
 #| echo: false
@@ -654,12 +653,7 @@ fig_relationship.update_layout(height=600)
 
 fig_relationship.show()
 ```
-:::
 
-
-::: {.row height="600px"}
-
-::: {.column width="50%"}
 
 ## Change Over Time
 
@@ -688,13 +682,12 @@ fig_relationship_animation.update_layout(
 
 fig_relationship_animation.show()
 ```
-:::
+
 
 ::: {.card .finding-card}
 **Main finding:** The relationship between health expenditure and HIV prevalence is complex rather than simply inverse. Some countries with high HIV prevalence also have relatively high health expenditure because greater spending may reflect investment in managing a substantial HIV burden.
 :::
 
-::: {.column width="50%"}
 
 ```{python}
 #| echo: false
@@ -722,13 +715,7 @@ fig_relationship_map.update_layout(
 
 fig_relationship_map.show()
 ```
-:::
 
-:::
-
-::: {.row height="550px"}
-
-::: {.column width="35%"}
 
 ```{python}
 #| echo: false
@@ -749,9 +736,7 @@ relationship_table_display[
 
 relationship_table_display
 ```
-:::
 
-::: {.column width="65%"}
 
 ```{python}
 #| echo: false
@@ -784,9 +769,7 @@ fig_selected.update_layout(height=600)
 
 fig_selected.show()
 ```
-:::
 
-:::
 
 
 # Conclusion 
