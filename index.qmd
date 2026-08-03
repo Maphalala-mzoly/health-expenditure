@@ -447,7 +447,6 @@ fig_hiv_top10.update_layout(
 fig_hiv_top10.show()
 ```
 :::
-
 :::
 
 ::: {.card .finding-card}
@@ -554,6 +553,8 @@ fig_health_top10.show()
 ```
 :::
 
+:::
+
 ::: {.row height="350px"}
 
 ## Country Comparison
@@ -606,7 +607,6 @@ fig_health_map.update_layout(
 
 fig_health_map.show()
 ```
-
 :::
 
 # RELATIONSHIP BETWEEN HIV AND HEALTH EXPENDITURE
